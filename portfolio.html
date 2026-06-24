@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>cd_collection of works</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div class="stage">
+        <div class="container">
+            <div class="card" style="--i:0;">
+                <img src="images/00.PNG">
+                <div class="content">虚实客家<br>基于UE5的3D信息可视化设计</div>
+            </div>
+            <div class="card" style="--i:1;">
+				<img src="images/01.png">
+                <div class="content">皮影-木兰辞<br>基于UE5和AE的多维切换动画</div>
+            </div>
+            <div class="card" style="--i:2;">
+				<img src="images/02.png">
+                <div class="content">跑酷游戏<br>基于unity和c#驱动的跑酷游戏</div>
+            </div>
+            <div class="card" style="--i:3;">
+				<img src="images/03.png">
+                <div class="content">underdogs点线动画<br>基于AE的苹果风-励志主题临摹动画</div>
+            </div>
+            <div class="card" style="--i:4;">
+				<img src="images/04.png">
+                <div class="content">智能体对话网页<br>基于Python连接多种大模型的智能对话助手</div>
+            </div>
+            <div class="card" style="--i:5;">
+				<img src="images/05.png">
+                <div class="content">竹文化馆<br>基于unity的三维展馆交互</div>
+            </div>
+        </div>
+    </div>
+
+    <div id="corner-poster-card" class="corner-card">
+        <img src="images/06.png" alt="平面设计封面">
+        <div class="corner-card-info">
+            <span>平面海报设计</span>
+            <p>DESIGN WORKS ↗</p>
+        </div>
+    </div>
+
+    <div id="portfolio-modal" class="modal">
+        <span class="close-btn">&times;</span>
+        
+        <div class="modal-wrapper">
+            <div class="modal-left">
+                <video id="detail-video" loop muted playsinline controls></video>
+            </div>
+            
+            <div class="modal-right">
+                <h2 id="detail-title">作品标题</h2>
+                <div class="project-tags"></div>
+                <div class="detail-text"></div>
+            </div>
+        </div>
+    </div>
+	
+    <div id="pdf-modal" class="modal" style="z-index: 10000;">
+        <span class="close-pdf-btn" style="position: absolute; top: 20px; right: 30px; font-size: 40px; color: #fff; cursor: pointer;">&times;</span>
+        <div style="width: 80%; height: 90vh; background: #fff; border-radius: 12px; overflow: hidden; box-shadow: 0 20px 50px rgba(0,0,0,0.5);">
+            <iframe id="pdf-viewer" src="" width="100%" height="100%" style="border: none;"></iframe>
+        </div>
+    </div>
+
+    <script src="js/script.js"></script>
+</body>
+</html>

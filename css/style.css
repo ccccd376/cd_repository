@@ -1,0 +1,702 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    background: radial-gradient(circle at center, #1a1a1a 0%, #050505 100%); /* 渐变舞台背景 */
+    overflow: hidden;
+    height: 100vh;
+}
+
+.stage {
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    perspective: 1500px; /* 3D 景深 */
+}
+
+.container {
+    position: relative;
+    width: 230px;
+    height: 320px;
+    transform-style: preserve-3d;
+    transition: transform 1s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+/* 🃏 3D 立牌卡片样式 */
+.card {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 15px;
+    color: white;
+    font-family: sans-serif;
+    transform: rotateY(calc(var(--i) * 60deg)) translateZ(380px); /* 6张卡片围成圈 */
+    backdrop-filter: blur(10px);
+    box-shadow: 0 0 20px rgba(0, 150, 255, 0.1);
+    cursor: pointer;
+    transition: 0.4s ease;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    -webkit-box-reflect: below 15px linear-gradient(transparent, rgba(255,255,255,0.08)); /* 独立倒影 */
+}
+
+.card:hover {
+    box-shadow: 0 0 30px rgba(0, 150, 255, 0.4);
+    border: 1px solid rgba(0, 150, 255, 0.6);
+    transform: rotateY(calc(var(--i) * 60deg)) translateZ(410px); /* 悬停向前探出 */
+}
+
+/* 卡片内图片 */
+.card img {
+    width: 100%;
+    height: 70%;
+    object-fit: cover;
+}
+
+/* 卡片内文字概括 */
+.card .content {
+    padding: 12px;
+    font-size: 14px;
+    text-align: center;
+    background: rgba(0,0,0,0.4);
+    flex-grow: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* 🌌 全屏遮罩层（关键定位：确保浮动在最上层） */
+.modal {
+    display: none; 
+    position: fixed; /* 必须是固定定位 */
+    top: 0; left: 0;
+    width: 100vw; height: 100vh;
+    background: rgba(0, 0, 0, 0.75); 
+    backdrop-filter: blur(15px); /* 毛玻璃模糊底层 */
+    z-index: 9999; /* 保证在最前方 */
+    justify-content: center;
+    align-items: center;
+}
+
+/* 📦 左右双栏主体 */
+.modal-wrapper {
+    display: flex;
+    width: 85%;
+    height: 80%;
+    background: rgba(25, 25, 25, 0.85);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: 0 30px 60px rgba(0, 0, 0, 0.8);
+}
+
+/* 🎬 左侧视频 */
+.modal-left {
+    flex: 6;
+    background: #000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.modal-left video {
+    width: 100%;
+    height: 100%;
+    object-fit: contain; /* 确保交互视频不被裁剪变形 */
+}
+
+/* 📝 右侧图文（独立滚动） */
+.modal-right {
+    flex: 4;
+    padding: 40px;
+    background: rgba(15, 15, 15, 0.5);
+    overflow-y: auto; /* 允许右侧超长时上下滚动 */
+    color: #e0e0e0;
+    font-family: sans-serif;
+}
+
+.modal-right h2 {
+    font-size: 24px;
+    margin-bottom: 15px;
+    color: #fff;
+}
+
+/* 🏷️ 标签样式 */
+.project-tags {
+    margin-bottom: 25px;
+}
+.project-tags span {
+    display: inline-block;
+    background: rgba(0, 150, 255, 0.15);
+    color: #0096ff;
+    border: 1px solid rgba(0, 150, 255, 0.3);
+    padding: 4px 10px;
+    border-radius: 5px;
+    font-size: 12px;
+    margin-right: 8px;
+}
+
+/* 详情内文 */
+.detail-text h3 {
+    font-size: 16px;
+    color: #0096ff;
+    margin: 20px 0 10px 0;
+}
+.detail-text p {
+    font-size: 14px;
+    line-height: 1.6;
+    color: #b0b0b0;
+}
+
+/* ❌ 关闭按钮 */
+.close-btn {
+    position: absolute;
+    top: 30px; right: 40px;
+    font-size: 40px;
+    color: rgba(255, 255, 255, 0.5);
+    cursor: pointer;
+    transition: 0.3s;
+}
+.close-btn:hover {
+    color: #fff;
+}
+
+/* ========================================== */
+/* 🪪 个人信息页 (index.html) 专属样式 */
+/* ========================================== */
+
+/* 主大容器左右分栏 */
+.about-container {
+    display: flex;
+    max-width: 1000px;
+    width: 90%;
+    height: 85vh;
+    margin: 7vh auto;
+    background: rgba(25, 25, 25, 0.65);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 24px;
+    backdrop-filter: blur(20px);
+    overflow: hidden;
+    box-shadow: 0 40px 100px rgba(0,0,0,0.8);
+}
+
+/* 左侧名片挂件 */
+.profile-card {
+    flex: 3.5;
+    background: rgba(15, 15, 15, 0.5);
+    border-right: 1px solid rgba(255, 255, 255, 0.05);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 30px;
+    color: #fff;
+}
+
+/* 头像框 */
+.avatar-box {
+    width: 130px;
+    height: 130px;
+    border-radius: 50%;
+    border: 2px solid #0096ff;
+    overflow: hidden;
+    box-shadow: 0 0 25px rgba(0, 150, 255, 0.3);
+    margin-bottom: 20px;
+}
+.avatar-box img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.profile-card h2 { font-size: 24px; margin-bottom: 8px; letter-spacing: 1px; }
+.profile-card .subtitle { font-size: 13px; color: #0096ff; margin-bottom: 40px; }
+
+/* 🚀 炫酷的进入作品集按钮 */
+.enter-btn {
+    display: inline-block;
+    padding: 13px 28px;
+    background: linear-gradient(135deg, #0052d4, #4364f7, #6fb1fc);
+    color: white;
+    text-decoration: none;
+    border-radius: 30px;
+    font-size: 14px;
+    font-weight: bold;
+    box-shadow: 0 10px 20px rgba(67, 100, 247, 0.3);
+    transition: 0.3s ease;
+}
+.enter-btn:hover {
+    transform: translateY(-3px) scale(1.05);
+    box-shadow: 0 15px 30px rgba(0, 150, 255, 0.5);
+}
+
+/* 右侧内容滚动区 */
+.info-content {
+    flex: 6.5;
+    padding: 50px;
+    overflow-y: auto;
+    color: #e0e0e0;
+}
+.info-section {
+    margin-bottom: 35px;
+}
+.info-section h3 {
+    font-size: 18px;
+    color: #0096ff;
+    margin-bottom: 15px;
+    border-bottom: 1px solid rgba(0, 150, 255, 0.2);
+    padding-bottom: 8px;
+}
+.info-section p { font-size: 14px; line-height: 1.8; color: #cccccc; }
+.info-section .sub-text { font-size: 13px; color: #888; margin-top: 5px; }
+
+/* 技能标签组 */
+/* ========================================== */
+/* ✨ 升级版：高科技荧光发光技能标签 */
+/* ========================================== */
+
+/* 标签包裹外壳 */
+.skills-tags { 
+    display: flex; 
+    flex-wrap: wrap; 
+    gap: 12px;       /* 稍微拉开一点间距，让发光不重叠 */
+    margin-top: 15px; 
+}
+
+/* 每一个独立的技能标签 Box */
+.skills-tags span {
+    background: rgba(0, 150, 255, 0.04); /* 极度透明的科技蓝底色 */
+    border: 1px solid rgba(0, 150, 255, 0.25); /* 淡淡的蓝色发光边框 */
+    padding: 8px 16px;
+    border-radius: 8px;
+    font-size: 13px;
+    color: #0096ff; /* 文字直接使用高亮蓝色 */
+    font-weight: 500;
+    letter-spacing: 0.5px;
+    
+    /* 核心：加入淡淡的初始发光阴影 */
+    box-shadow: 0 0 8px rgba(0, 150, 255, 0.1);
+    
+    /* 动画过渡：让鼠标放上去的变化非常丝滑 */
+    transition: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+    cursor: default;
+}
+
+/* 🖱️ 鼠标悬停（Hover）时的炫酷激活动画 */
+.skills-tags span:hover {
+    color: #ffffff; /* 文字变成纯白，高亮突显 */
+    background: rgba(0, 150, 255, 0.15); /* 蓝色背景变深 */
+    border-color: #0096ff; /* 边框完全点亮 */
+    
+    /* 荧光扩散：像霓虹灯一样向外喷射蓝色光芒 */
+    box-shadow: 0 0 15px rgba(0, 150, 255, 0.6), 
+                inset 0 0 8px rgba(0, 150, 255, 0.3); 
+                
+    transform: translateY(-2px); /* 微微向上悬浮 2 像素，增加物理交互感 */
+}
+
+
+/* ========================================== */
+/* ⏳ 校园经历时间线专属样式 */
+/* ========================================== */
+
+.timeline-wrapper {
+    position: relative;
+    padding-left: 20px;
+    margin-top: 15px;
+    /* 绘制左侧的垂直时间线 */
+    border-left: 2px solid rgba(0, 150, 255, 0.15); 
+}
+
+.timeline-item {
+    position: relative;
+    margin-bottom: 25px;
+}
+/* 最后一个经历不需要留太多底部间距 */
+.timeline-item:last-child {
+    margin-bottom: 5px;
+}
+
+/* 时间线上的蓝色小圆点 */
+.timeline-dot {
+    position: absolute;
+    left: -27px; /* 恰好压在左侧的边框线上 */
+    top: 5px;
+    width: 12px;
+    height: 12px;
+    background: #0096ff;
+    border: 2px solid #191919; /* 用背景色做个描边，产生断开感 */
+    border-radius: 50%;
+    box-shadow: 0 0 10px #0096ff; /* 荧光发光效果 */
+}
+
+/* 经历的标题头部（时间和职务） */
+.timeline-header {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 6px;
+}
+
+.timeline-time {
+    font-size: 13px;
+    color: #0096ff; /* 蓝色强调时间 */
+    font-weight: bold;
+    font-family: monospace;
+}
+
+.timeline-title {
+    font-size: 14px;
+    color: #ffffff;
+    font-weight: 600;
+}
+
+/* 具体工作职责描述 */
+.timeline-desc {
+    font-size: 13px !important;
+    line-height: 1.6;
+    color: #a0a0a0 !important;
+}
+
+/* ========================================== */
+/* 📄 右侧详情内嵌 PDF 触发卡片样式 */
+/* ========================================== */
+.pdf-trigger-card {
+    display: flex;
+    align-items: center;
+    background: rgba(0, 150, 255, 0.05);
+    border: 1px solid rgba(0, 150, 255, 0.2);
+    border-radius: 12px;
+    padding: 15px 20px;
+    margin: 18px 0;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+}
+
+/* 卡片内的图标 */
+.pdf-trigger-card .pdf-icon {
+    font-size: 30px;
+    margin-right: 15px;
+    filter: drop-shadow(0 0 5px rgba(0, 150, 255, 0.6));
+}
+
+/* 卡片内部文字说明 */
+.pdf-trigger-card .pdf-info {
+    flex-grow: 1;
+}
+.pdf-trigger-card .pdf-info h4 {
+    font-size: 14px;
+    color: #ffffff;
+    margin-bottom: 4px;
+    font-weight: 600;
+}
+.pdf-trigger-card .pdf-info p {
+    font-size: 12px !important;
+    color: #888888 !important;
+    margin: 0 !important;
+}
+
+/* 右侧的箭头 */
+.pdf-trigger-card .pdf-arrow {
+    font-size: 18px;
+    color: #0096ff;
+    transition: transform 0.3s ease;
+}
+
+/* 🖱️ 鼠标悬停卡片时的通电发光效果 */
+.pdf-trigger-card:hover {
+    background: rgba(0, 150, 255, 0.12);
+    border-color: #0096ff;
+    box-shadow: 0 0 20px rgba(0, 150, 255, 0.4);
+    transform: translateY(-2px);
+}
+
+/* 悬停时箭头往右上角指 */
+.pdf-trigger-card:hover .pdf-arrow {
+    transform: translate(3px, -3px);
+    color: #fff;
+}
+/* ========================================== */
+/* 🖼️ 第 7 张卡片专享：两排并列海报格子样式 */
+/* ========================================== */
+
+/* 1. 网格容器：实现两排并列（每排3个，自动适配） */
+.poster-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr); /* 完美的3列并列 */
+    gap: 15px; /* 格子之间的间距 */
+    margin: 20px 0;
+    width: 100%;
+}
+
+/* 2. 单个海报卡片外壳 */
+.poster-item {
+    position: relative;
+    border-radius: 10px;
+    overflow: hidden;
+    aspect-ratio: 3 / 4; /* 锁定标准的竖版海报比例 */
+    background: #14171c;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    cursor: pointer;
+    transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1); /* 丝滑过渡动效 */
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+}
+
+/* 海报图片自身样式 */
+.poster-item img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover; /* 保证图片不变形地铺满格子 */
+    transition: transform 0.4s ease;
+}
+
+/* 3. 🖱️ 核心交互：光标停留（Hover）时的“通电发光+微微浮起”效果 */
+.poster-item:hover {
+    transform: translateY(-6px); /* 向上轻轻浮起 6 像素 */
+    border-color: #0096ff; /* 边框变成标志性的科技蓝 */
+    /* 核心：外层炫酷的蓝色荧光霓虹效果 */
+    box-shadow: 0 0 25px rgba(0, 150, 255, 0.5), 
+                0 10px 20px rgba(0, 0, 0, 0.5);
+}
+
+/* 悬停时图片微微放大，增加空间感 */
+.poster-item:hover img {
+    transform: scale(1.05);
+}
+
+/* 4. 遮罩层：悬停时从底部浮现海报标题文字 */
+.poster-mask {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(transparent 40%, rgba(0, 0, 0, 0.85));
+    display: flex;
+    align-items: flex-end;
+    padding: 12px;
+    box-sizing: border-box;
+    opacity: 0; /* 默认隐藏 */
+    transition: opacity 0.3s ease;
+}
+
+.poster-mask span {
+    color: #ffffff;
+    font-size: 13px;
+    font-weight: 500;
+    letter-spacing: 0.5px;
+    transform: translateY(10px);
+    transition: transform 0.3s ease;
+}
+
+/* 悬停时字和遮罩显现出来 */
+.poster-item:hover .poster-mask {
+    opacity: 1;
+}
+.poster-item:hover .poster-mask span {
+    transform: translateY(0);
+}
+/* ========================================== */
+/* 🌌 纯净全屏海报大厅专用样式（直接加在底部） */
+/* ========================================== */
+
+.pure-poster-container {
+    width: 100%;
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 30px 10px;
+    box-sizing: border-box;
+    text-align: center;
+}
+
+.poster-main-title {
+    font-size: 28px;
+    color: #ffffff;
+    margin-bottom: 8px;
+    font-weight: 600;
+    letter-spacing: 1px;
+}
+
+.poster-main-sub {
+    font-size: 14px;
+    color: #0096ff;
+    margin-bottom: 35px;
+    opacity: 0.8;
+}
+
+.pure-poster-container .poster-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 25px; 
+    padding: 10px;
+}
+
+.pure-poster-container .poster-item {
+    position: relative;
+    border-radius: 10px;
+    overflow: hidden;
+    aspect-ratio: 3 / 4; 
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.6);
+    cursor: pointer;
+    transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+}
+
+.pure-poster-container .poster-item img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.4s ease;
+}
+
+/* 🖱️ 悬停发光 */
+.pure-poster-container .poster-item:hover {
+    transform: translateY(-6px);
+    border-color: #0096ff;
+    box-shadow: 0 0 25px rgba(0, 150, 255, 0.5), 
+                0 10px 20px rgba(0, 0, 0, 0.5);
+}
+
+.pure-poster-container .poster-item:hover img {
+    transform: scale(1.05);
+}
+
+.poster-mask {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(transparent 40%, rgba(0, 0, 0, 0.85));
+    display: flex;
+    align-items: flex-end;
+    padding: 12px;
+    box-sizing: border-box;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.poster-mask span {
+    color: #ffffff;
+    font-size: 13px;
+    font-weight: 500;
+    transform: translateY(10px);
+    transition: transform 0.3s ease;
+}
+
+.pure-poster-container .poster-item:hover .poster-mask {
+    opacity: 1;
+}
+.pure-poster-container .poster-item:hover .poster-mask span {
+    transform: translateY(0);
+}
+/* ======================================================== */
+/* ⚡ 精准拦截：进入海报模式时，打破旧布局，隐形视频和右侧文字标题 */
+/* ======================================================== */
+
+/* 1. 当处于海报模式时，把原本 Flex 左右分栏的容器变成正常的 block 块级，从而让海报全屏铺满 */
+#portfolio-modal.poster-mode .modal-wrapper {
+    display: block !important;
+    background: rgba(15, 15, 15, 0.95) !important; /* 稍微加深一点背景，突出海报 */
+    overflow-y: auto !important; /* 让整个大弹窗可以直接上下滚动 */
+}
+
+/* 2. 彻底隐形：隐藏左侧的视频容器、右侧原有的作品总标题、以及标签盒子 */
+#portfolio-modal.poster-mode .modal-left,
+#portfolio-modal.poster-mode #detail-title,
+#portfolio-modal.poster-mode .project-tags {
+    display: none !important;
+}
+
+/* 3. 解除限制：让原有的右侧图文区撑满 100% 宽度，不再受 flex 分栏的限制 */
+#portfolio-modal.poster-mode .modal-right {
+    width: 100% !important;
+    height: auto !important;
+    overflow-y: visible !important; /* 把小滚动条干掉，用大窗口滚动 */
+    padding: 40px !important;
+}
+
+/* 4. 微调网格：确保在你的大容器里能完美展示两排并列 */
+#portfolio-modal.poster-mode .poster-grid {
+    display: grid !important;
+    grid-template-columns: repeat(3, 1fr) !important;
+    gap: 25px !important;
+    margin: 30px 0 !important;
+    width: 100% !important;
+}
+/* ========================================== */
+/* 📌 右下角独立平面海报入口卡片样式（放大升级版） */
+/* ========================================== */
+.corner-card {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    width: 260px;  /* 📐 宽度从 200px 放大到 260px */
+    height: 110px; /* 📐 高度从 90px 放大到 110px */
+    background: rgba(25, 25, 25, 0.75); /* 稍微加深一点背景，更有质感 */
+    border: 1px solid rgba(255, 255, 255, 0.2); /* 强化边框线 */
+    border-radius: 14px; /* 弧度更圆润 */
+    backdrop-filter: blur(12px);
+    z-index: 999; 
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    padding: 12px 15px; /* 调整内边距 */
+    gap: 15px; /* 图片和文字的间距拉开 */
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.6);
+    transition: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+/* 小卡片左侧图片：同步放大 */
+.corner-card img {
+    width: 65px;  /* 📐 图片宽度从 50px 放大到 65px */
+    height: 85px; /* 📐 图片高度从 70px 放大到 85px */
+    object-fit: cover;
+    border-radius: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    transition: transform 0.3s ease;
+}
+
+/* 小卡片右侧文字区域 */
+.corner-card-info {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+/* 主标题文字放大 */
+.corner-card-info span {
+    color: #ffffff;
+    font-size: 15px; /* 🔤 字号从 13px 放大到 15px */
+    font-weight: 600;
+    margin-bottom: 6px;
+    letter-spacing: 0.5px;
+}
+
+/* 副标题文字微调 */
+.corner-card-info p {
+    color: #0096ff;
+    font-size: 12px; /* 🔤 字号从 11px 放大到 12px */
+    font-weight: bold;
+    letter-spacing: 1px;
+}
+
+/* 鼠标悬停 Hover 特效保持丝滑上浮与发光 */
+.corner-card:hover {
+    transform: translateY(-6px); /* 悬浮高度稍微增加 */
+    border-color: #0096ff;
+    box-shadow: 0 0 25px rgba(0, 150, 255, 0.5), 0 20px 40px rgba(0, 0, 0, 0.7);
+}
+
+.corner-card:hover img {
+    transform: scale(1.04);
+}
+
